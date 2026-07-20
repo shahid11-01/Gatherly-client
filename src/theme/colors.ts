@@ -1,37 +1,45 @@
-export const Colors ={
-light:{
-    primary: "#2563EB",
-    secondary: "#06B6D4",
+export const Colors = {
 
-    success: "#22C55E",
-    warning:"#F59E0B",
-    danger:"#EF4444",
+    light:{
 
-    background: "#F8FAFC",
-    surface:"#FFFFFF",
+        primary:"#2563EB",
+        secondary:"#06B6D4",
 
-    text: "#0F172A",
-    textSecondary: "#64748B",
+        success:"#22C55E",
+        warning:"#F59E0B",
+        danger:"#EF4444",
 
-    border: "#E2E8F0",
+        background:"#F8FAFC",
+        surface:"#FFFFFF",
 
-    disabled:"#CBD5E1",
+        text:"#0F172A",
+        textSecondary:"#64748B",
 
-},
-  primary: "#60A5FA",
-    secondary: "#22D3EE",
+        border:"#E2E8F0",
 
-    success: "#4ADE80",
-    warning: "#FCD34D",
-    danger: "#F87171",
+        disabled:"#CBD5E1",
 
-    background: "#020617",
-    surface: "#0F172A",
+    },
 
-    text: "#F8FAFC",
-    textSecondary: "#94A3B8",
+    dark:{
 
-    border: "#1E293B",
+        primary:"#60A5FA",
+        secondary:"#22D3EE",
 
-    disabled: "#334155",
-};
+        success:"#4ADE80",
+        warning:"#FCD34D",
+        danger:"#F87171",
+
+        background:"#020617",
+        surface:"#0F172A",
+
+        text:"#F8FAFC",
+        textSecondary:"#94A3B8",
+
+        border:"#1E293B",
+
+        disabled:"#334155",
+
+    }
+
+}
