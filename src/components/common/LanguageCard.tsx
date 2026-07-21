@@ -2,68 +2,121 @@ import React from "react";
 
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { Spacing } from "@/src/theme/spacing";
+import { Colors } from "../../theme/colors";
+import { Fonts } from "../../theme/font";
+
+interface LangaugeCardProps {
+    code: string;
+    title: string;
+    subtitle: string;
+    selected: string;
+    onPress: () => void;
+}
+
+
 //// LanguageCard 스타일 정의
 const styles = StyleSheet.create({
+     // 카드 전체
     container: {
-        flexDirection: "row",
-        alignItems: "center",
 
-        padding: 20,
+        width: "100%",
 
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
+        height: 86,
 
         borderRadius: 18,
-        backgroundColor: "#FFFFFF",
-        marginBottom: 10,
+
+        borderWidth: 1,
+
+        borderColor: Colors.light.border,
+
+        backgroundColor: Colors.light.surface,
+
+        flexDirection: "row",
+
+        justifyContent: "space-between",
+
+        alignItems: "center",
+
+        paddingHorizontal: Spacing.lg,
+
+        marginBottom: Spacing.md,
+
     },
+
+    // 선택된 카드
     selectedContainer: {
-        borderColor: "#3F6EF7",
-        backgroundColor: "#EEF2FF",
+
+        borderColor: Colors.light.primary,
+
     },
+
+    // 왼쪽 영역
+    leftContainer: {
+
+        flexDirection: "row",
+
+        alignItems: "center",
+
+    },
+
+    // 국가 코드
     code: {
-        fontSize: 30,
+
+        fontSize: 28,
+
         fontWeight: "700",
-        width: 55,
+
+        marginRight: Spacing.lg,
+
     },
-    textContainer: {
-        flex: 1,
-        marginLeft: 18,
-    },
+
+    // 제목
     title: {
-        fontSize: 19,
+
+        fontSize: Fonts.body,
+
         fontWeight: "700",
-        color: "#111827",
+
+        color: Colors.light.text,
+
     },
-      subtitle: {
-    marginTop: 3,
-    fontSize: 14,
-    color: "#6B7280",
-  },
 
-  circle: {
-    width: 28,
-    height: 28,
+    // 부제목
+    subtitle: {
 
-    borderRadius: 14,
+        fontSize: 14,
 
-    borderWidth: 2,
-    borderColor: "#D1D5DB",
+        color: Colors.light.textSecondary,
 
-    justifyContent: "center",
-    alignItems: "center",
-  },
+        marginTop: 4,
 
-  selectedCircle: {
-    backgroundColor: "#4F6EF7",
-    borderColor: "#4F6EF7",
-  },
+    },
 
-  check: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 14,
-  },
+    // 선택 원
+    radio: {
+
+        width: 22,
+
+        height: 22,
+
+        borderRadius: 11,
+
+        borderWidth: 2,
+
+        borderColor: Colors.light.border,
+
+    },
+
+    // 선택 상태
+    selectedRadio: {
+
+        backgroundColor: Colors.light.primary,
+
+        borderColor: Colors.light.primary,
+
+    },
+
 });
 
 interface LanguageCardProps {
@@ -88,25 +141,32 @@ export default function LanguageCard({
                 selected && styles.selectedContainer
             ]}
             onPress={onPress}
-            activeOpacity={0.8}
             >
-             {/* 언어 코드 */}
-             <Text style={styles.code}>{code}</Text>
 
-             {/* 언어 정보 */}
-             <View  style={styles.textContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.subtitle}>{subtitle}</Text>
-             </View>
-             {/* 선택된 언어 표시 */}
-             <View
-                style={[
-                    styles.circle,
-                    selected && styles.selectedCircle
-                ]}
-                >
-                    {selected && <Text style={styles.check}>✓</Text>}
+            <View style={styles.leftContainer}>
+                <Text style={styles.code}>
+                    {code}
+                </Text>
+
+                <View>
+                    <Text style={styles.title}>
+                        {title}
+                    </Text>
+
+                    <Text style={styles.subtitle}>
+                        {subtitle}
+                    </Text>
+
                 </View>
+
+            </View>
+            <View
+              style={[
+                styles.radio,
+                selected && styles.selectedRadio,
+              ]}
+            />
+            
             </TouchableOpacity>
         );
 }
