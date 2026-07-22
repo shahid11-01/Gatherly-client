@@ -3,9 +3,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LanguageScreen from '../screens/auth/LanguageScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
-import { AuthStackParamList } from '../types/navigation';
+
+
+//인증 Stack 타입
+export type AuthStackParamList = {
+    Language: undefined;
+    Login: undefined;
+    Register: undefined;
+}
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
+
 
 export default function AuthNavigator() {
     return (

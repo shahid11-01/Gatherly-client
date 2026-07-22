@@ -1,15 +1,17 @@
-import { useState } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 import LanguageCard from "@/src/components/common/LanguageCard";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { AuthStackParamList } from "../../types/navigation";
 
+import { useLanguage } from "@/src/context/LangaugeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Colors } from "../../theme/colors";
 import { Fonts } from "../../theme/font";
 import { Spacing } from "../../theme/spacing";
+
+
 
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList>;
@@ -19,44 +21,47 @@ export default function LanguageScreen() {
    // 다른 화면으로 이동할 때 사용한다.
    
    const navigation = useNavigation<NavigationProp>();
+
+   const {language, setLanguage, t} = useLanguage();
    
-   const [selectedLanguage, setSelectedLanguage] = useState("en");
     return (
       <SafeAreaView style={styles.container}>
          <View style={styles.content}>
             <Text style={styles.title}>
-               Choose Your Language
+               {t.chooseLanguage}
             </Text>
             <Text style={styles.subtitle}>
-               언어를 선택하세요: Dil Seçin
+               {t.languageSubtitle}
             </Text>
 
             <LanguageCard
                   code="GB"
                   title="English"
                   subtitle="English"
-                  selected= {selectedLanguage === "en"}
-                  onPress={() => setSelectedLanguage("en")}
+                  selected= {language === "en"}
+                  onPress={() => setLanguage("en")}
             />
             <LanguageCard
                   code="KR"
                   title="한국어"
                   subtitle="Korean"
-                  selected={selectedLanguage === "ko"}
-                  onPress={() => setSelectedLanguage("ko")}
+                  selected={language === "ko"}
+                  onPress={() => setLanguage("ko")}
             />
             <LanguageCard
                   code="AZ"
                   title="Azərbaycan dili"
                   subtitle="Azerbaijani"
-                  selected={selectedLanguage === "az"}
-                  onPress={() => setSelectedLanguage("az")}
+                  selected={language === "az"}
+                  onPress={() => setLanguage("az")}
             />
          </View>
          <View style={styles.buttonContainer}>
             <PrimaryButton
-               title="Continue/ 계속하기/ Davam edin"
-               onPress={() => {}}
+               title={t.continue}
+               //onPress={() => {}}  ->>
+               onPress={() => navigation.navigate("Login")}
+               //Continue 버튼 누르면 로그인 화면으로 이동한다
                />
          </View>
       </SafeAreaView>

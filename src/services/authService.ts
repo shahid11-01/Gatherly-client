@@ -1,25 +1,27 @@
-import api from "../api/axios";
-import { AuthResponse, LoginRequest, SignupRequest, } from "../types/auth";
+// import api from "../api/axios";
+// import { AuthResponse, LoginRequest, SignupRequest, } from "../types/auth";
 
-//로그인
-export const login = async(
-    data: LoginRequest
-): Promise<AuthResponse> => {
-    const response = await api.post("/api/auth/signin", data
+// //요청 타입
+
+// //로그인
+// export async function login(
+//     data: LoginRequest
+// ): Promise<AuthResponse> {
+//     const response = await api.post("/api/auth/signin", data
         
-    );
-    return response.data;
+//     );
+//     return response.data;
 
-};
+// };
 
-//회원가입
-export const signup = async(
-    data: SignupRequest
+// //회원가입
+// export async function register(
+//     data: SignupRequest
     
-): Promise<AuthResponse> => {
-    const response = await api.post("/api/auth/signup", data);
-    return response.data;
-}
+// ): Promise<AuthResponse> => {
+//     const response = await api.post("/api/auth/signup", data);
+//     return response.data;
+// }
 
 
 
