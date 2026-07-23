@@ -15,17 +15,22 @@ export const saveTokens = async(
     (REFRESH_TOKEN_KEY, refreshToken);
 };
 
-export const getAccessToken = async()=>{
+export const getAccessToken = async(): Promise<string | null>=>{
     return await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
 };
 
-export const getRefreshToken = async()=>{
+export const getRefreshToken = async():Promise<string | null>=>{
     return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
 };
 
-export const removeTokens = async()=> {
+export const removeTokens = async():Promise<void> => {
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
 
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 
+};
+//로그인 여부 확인
+export const hasToken = async():Promise<boolean>=> {
+    const token = await getAccessToken();
+    return token !== null;
 };

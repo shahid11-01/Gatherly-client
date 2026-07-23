@@ -3,13 +3,14 @@ import Checkbox from "@/src/components/form/Checkbox";
 import InputField from "@/src/components/form/InputField";
 import PasswordInput from "@/src/components/form/PasswordInput";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { useAuth } from "@/src/context/AuthContext";
 import { Colors } from "@/src/theme/colors";
 import { Fonts } from "@/src/theme/font";
 import { Spacing } from "@/src/theme/spacing";
+import { validateRegister } from "@/src/utils/validation";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
  
 
 
@@ -19,23 +20,46 @@ export default function RegisterScreen() {
         const[name, setName] = useState("");
         const[email, setEmail] = useState("");
         const[password, setPassword] = useState("");
+        const {register} = useAuth();
 
         //약관 동의 여부
         const[checked, setChecked] = useState(false);
 
+
         //회원가입 버튼 클릭
-        const handleRegister　= () => {
-            console.log({
+        const handleRegister = async () => {
+
+            const error = validateRegister(
                 name,
                 email,
                 password,
                 checked,
-            });
+            );
+
+            if (error) {
+                alert(error);
+                return;
+            }
+
+            try {
+                await register(
+                    name,
+                    email,
+                    password,
+                );
+
+            } catch (error) {
+
+                console.log("Register Error", error);
+
+            }
+
         };
         //로그인 화면 이동
         const handleLogin = () => {
 
         };
+        
     
         return (
             <SafeAreaView style={styles.container}>

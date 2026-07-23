@@ -9,15 +9,18 @@ import Divider from "@/src/components/ui/Divider";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import SocialButton from "@/src/components/ui/SocialButton";
 import { Images } from "@/src/constants/images";
+import { useAuth } from "@/src/context/AuthContext";
 import { useLanguage } from "@/src/context/LangaugeContext";
 import { AuthStackParamList } from "@/src/navigation/AuthNavigator";
 import { Colors } from "@/src/theme/colors";
 import { Spacing } from "@/src/theme/spacing";
+import { validateLogin } from "@/src/utils/validation";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 // 로그인 화면
 export default function LoginScreen() {
+    
     const { t } = useLanguage();
     const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
@@ -27,6 +30,27 @@ export default function LoginScreen() {
 
     // 비밀번호 상태
     const [password, setPassword] = useState("");
+    const{login} =useAuth();
+    console.log("Email =", email);
+    console.log("Password=", password);
+    const handleLogin = async () => {
+        const error = validateLogin(
+            email,
+            password,
+        );
+        if (error) {
+            alert(error);
+            return;
+        }
+        try {
+            await login(
+                email,
+                password,
+            );
+        }catch (error) {
+            console.log("Login Error", error);
+        };
+    }
     const handleRegister = () => {
         navigation.navigate("Register");
     }
@@ -45,7 +69,7 @@ export default function LoginScreen() {
                 <InputField
                     label={t.email}
                     placeholder={t.enterEmail}
-                    value={t.email}
+                    value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
                 />
@@ -63,8 +87,8 @@ export default function LoginScreen() {
                 </TouchableOpacity>
                 
                  <PrimaryButton
-                    title="Sign in"
-                    onPress={() => {}}
+                    title="Login"
+                    onPress={handleLogin}
               />
             </View>
             <Divider

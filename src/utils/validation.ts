@@ -3,7 +3,7 @@
 //이메일 검증
 
 export function validateEmail(email:string): string | null {
-    if(email.trim()) {
+    if(!email.trim()) {
         return "validation.email.required";
     }
 
@@ -19,7 +19,7 @@ export function validateEmail(email:string): string | null {
 //비밀번호 검증
 export function validatePassword(password: string) :string | null {
     if(!password.trim()) {
-        return "validation.password.reqired";
+        return "validation.password.required";
     }
     if(password.length<8) {
         return "validation.password.length";
