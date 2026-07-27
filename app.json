@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Gatherly-client",
-    "slug": "Gatherly-client",
+    "slug": "gatherly",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,7 +20,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Gatherlyclient"
+      "package": "com.gatherly.app"
     },
     "web": {
       "output": "single",
@@ -39,11 +39,26 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin",
+      [
+      "@react-native-seoul/kakao-login",
+      {
+        "kakaoAppKey": "4b53b527ba1de86cfb370a34112b9f10",
+        "kotlinVersion": "2.0.21"
+      }
+    ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "485ae369-1ee5-4c1e-929f-8433ddecdd54"
+      }
+    },
+    "owner": "sahid01s-team"
   }
 }

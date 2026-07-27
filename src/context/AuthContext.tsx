@@ -44,6 +44,14 @@ interface AuthContextType {
         email: string,
         password: string,
     ) => Promise<void>;
+    //구글 로그인
+    googleLogin: (
+        idToken: string,
+    ) => Promise<void>;
+    //카카오 로그인
+    kakaoLogin: (
+        accessToken: string,
+    ) => Promise<void>;
 
     // 로그아웃
     logout: () => Promise<void>;
@@ -85,6 +93,8 @@ export function AuthProvider({
         loading,
         setLoading,
     ] = useState(true);
+
+
 
     // 저장된 로그인 복원
     const restoreSession = async () => {
@@ -185,12 +195,16 @@ export function AuthProvider({
 
         }
 
-        catch (error) {
+        catch (error: any) {
 
             console.log(
                 "Login Error",
                 error,
             );
+            console.log("Err msg", error?.message);
+            console.log("ErrCode", error?.code);
+            console.log("err status", error?.response?.status);
+            console.log("err url:", error?.config?.url);
 
             throw error;
 
@@ -266,6 +280,58 @@ export function AuthProvider({
 
     };
 
+
+    const googleLogin = async(
+        idToken:string,
+    ) => {
+        try{
+            setLoading(true);
+
+            //백앤드에 idToken 보내요
+            const response =await authService.googleLogin({idToken});
+
+            //토큰 저장
+            await saveTokens (
+                response.accessToken,
+                response.refreshToken
+            )
+            //유저 정보를 받기
+            const currentUser = await authService.getCurrentUser();
+
+            setUser(currentUser);
+            setIsAuthenticated(true);
+        }catch(error: any) {
+            console.log(
+                "Google Login Error", error,
+            );
+
+            throw error;
+        }finally {
+            setLoading(false);
+        }
+    };
+    
+    //카카오 로그인
+    const kakaoLogin = async (
+        accessToken: string
+    ) => {
+        try {
+            setLoading(true);
+            const response = await authService.kakaoLogin({accessToken});
+            await saveTokens(
+                response.accessToken,
+                response.refreshToken
+            );
+            const currentUser = await authService.getCurrentUser();
+            setUser(currentUser);
+            setIsAuthenticated(true);
+        }catch(error) {
+            console.log("카카오 로그인 오류", error);
+        }finally {
+            setLoading(false);
+        }
+    }
+
     // 로그아웃
     const logout = async () => {
 
@@ -313,6 +379,8 @@ export function AuthProvider({
                 isAuthenticated,
 
                 login,
+                googleLogin,
+                kakaoLogin,
 
                 register,
 

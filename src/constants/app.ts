@@ -1,2 +1,2 @@
 export const APP_NAME = "Gatherly";
-export const API_URL = "http://172.33.0.83:9698/api";
+export const API_URL = "http://10.0.2.2:9698/api";

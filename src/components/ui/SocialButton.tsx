@@ -9,12 +9,14 @@ interface SocialButtonProps {
     icon: any;
     //버튼 클릭 이벤트
     onPress: () => void;
+    disabled?: boolean;
 }
 
 export default function SocialButton({
     title,
     icon,
     onPress,
+    disabled =false,
 }: SocialButtonProps) {
     return(
 

@@ -7,15 +7,19 @@ import { useAuth } from "@/src/context/AuthContext";
 import { Colors } from "@/src/theme/colors";
 import { Fonts } from "@/src/theme/font";
 import { Spacing } from "@/src/theme/spacing";
+import { AuthStackParamList } from "@/src/types/navigation";
 import { validateRegister } from "@/src/utils/validation";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
- 
+
 
 
 //회원가입 화면
 export default function RegisterScreen() {
+    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
         //입력 상태
         const[name, setName] = useState("");
         const[email, setEmail] = useState("");
@@ -57,6 +61,7 @@ export default function RegisterScreen() {
         };
         //로그인 화면 이동
         const handleLogin = () => {
+            navigation.navigate("Login");
 
         };
         

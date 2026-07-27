@@ -22,3 +22,15 @@ export interface User {
     userName:string;
     email: string;
 }
+//google 요청
+export interface GoogleLoginRequest{
+
+    idToken: string;
+}
+
+export interface GoogleUserResponse{
+    givenName:string;
+}
+export interface KakaoLoginRequest {
+    accessToken: string;
+}
