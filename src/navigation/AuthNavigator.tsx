@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LanguageScreen from '../screens/auth/LanguageScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
-import HomeScreen from '../screens/home/HomeScreen';
+import HomeScreen from '../screens/main/HomeScreen';
 
 
 //인증 Stack 타입

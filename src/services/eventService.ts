@@ -21,3 +21,5 @@ export const deleteEvent = async(eventId: number):
     const response = await api.delete(`/event/${eventId}`);
     return response.data;
 };
+
+

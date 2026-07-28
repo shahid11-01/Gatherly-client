@@ -8,4 +8,17 @@ export type AuthStackParamList = {
     Language: undefined;
     Login: undefined;
     Register: undefined;
+};
+
+export type MainTabParamList = {
+    Home: undefined;
+    MyEvents: undefined;
+    Create: undefined;
+    Profile: undefined;
+}
+
+export type AppStackParamList = {
+    MainTabs: undefined;
+    EventDetail: {eventId: number};
+    EditEvent: {eventId: number};
 }

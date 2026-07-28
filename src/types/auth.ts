@@ -13,6 +13,7 @@ export interface LoginRequest {
 export interface SignupRequest {
     userName: string;
     email: string;
+    phone:string;
     password: string;
 }
 

@@ -15,6 +15,17 @@ export function validateEmail(email:string): string | null {
     }
     return null;
 }
+//전화번호 검증
+export function validatePhone(phone: string): string | null {
+    if(!phone.trim()) {
+        return "validation.phone.required";
+    }
+    const phoneRegex = /^010-\d{3,4}-\d{4}}$/
+    if(!phoneRegex.test(phone)) {
+        return "validation.phone.required";
+    }
+    return null;
+}
 
 //비밀번호 검증
 export function validatePassword(password: string) :string | null {
@@ -38,6 +49,7 @@ export function validateName(name: string): string | null {
 }
 
 
+
 //로그인 검증
 export function validateLogin(
     email: string,
@@ -58,6 +70,7 @@ export function validateLogin(
 export function validateRegister (
     name: string,
     email: string,
+    phone: string,
     password: string,
     checked: boolean,
 ): string | null {
@@ -73,6 +86,10 @@ export function validateRegister (
     const passwordError = validatePassword(password);
     if(passwordError) {
         return passwordError;
+    }
+    const phoneError = validatePhone(phone);
+    if(phoneError) {
+        return phoneError;
     }
     if(!checked) {
         return "validation.terms.required";

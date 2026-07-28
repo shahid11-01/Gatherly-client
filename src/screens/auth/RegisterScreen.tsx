@@ -24,6 +24,7 @@ export default function RegisterScreen() {
         const[name, setName] = useState("");
         const[email, setEmail] = useState("");
         const[password, setPassword] = useState("");
+        const[phone, setPhone] = useState("");
         const {register} = useAuth();
 
         //약관 동의 여부
@@ -36,6 +37,7 @@ export default function RegisterScreen() {
             const error = validateRegister(
                 name,
                 email,
+                phone,
                 password,
                 checked,
             );
@@ -49,6 +51,7 @@ export default function RegisterScreen() {
                 await register(
                     name,
                     email,
+                    phone,
                     password,
                 );
 

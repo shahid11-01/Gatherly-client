@@ -42,6 +42,7 @@ interface AuthContextType {
     register: (
         userName: string,
         email: string,
+        phone:string,
         password: string,
     ) => Promise<void>;
     //구글 로그인
@@ -224,6 +225,7 @@ export function AuthProvider({
         userName: string,
 
         email: string,
+        phone: string,
 
         password: string,
 
@@ -237,6 +239,7 @@ export function AuthProvider({
                 await authService.register({
 
                     userName,
+                    phone,
 
                     email,
 
