@@ -1,5 +1,6 @@
 import api from "../api/axios";
 import { AuthResponse, GoogleLoginRequest, KakaoLoginRequest, LoginRequest, SignupRequest, User } from "../types/auth";
+import { getRefreshToken } from "../utils/tokenStorage";
 
 //요청 타입
 
@@ -43,6 +44,7 @@ export async function googleLogin(
 
 //로그아웃
 export async function logout(): Promise<void> {
+    const refreshToken = await getRefreshToken();
     await api.post("/auth/logout");
 }
 

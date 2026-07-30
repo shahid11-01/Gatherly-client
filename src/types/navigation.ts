@@ -15,10 +15,14 @@ export type MainTabParamList = {
     MyEvents: undefined;
     Create: undefined;
     Profile: undefined;
+    
 }
 
 export type AppStackParamList = {
     MainTabs: undefined;
     EventDetail: {eventId: number};
+    HostedEventScreen: { eventId: number }; 
+    ManageParticipants: {eventId: number};
+    MyEventScreen: {eventId: number};
     EditEvent: {eventId: number};
 }

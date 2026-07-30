@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
@@ -36,10 +36,20 @@ export default function CreateEvent() {
     const[maxParticipants, setMaxParticipants] = useState(1);
     const[picker, setPicker] = useState<null | "start" | "end">(null);
     const [submitting, setSubmitting] = useState(false);
+    const showPicker = (value: Date, mode: "date" | "time", onChange: (d: Date) => void) => {
+    DateTimePickerAndroid.open({
+        value,
+        mode,
+        is24Hour: false,
+        onChange: (_event, selected) => {
+            if (selected) onChange(selected);
+        },
+    });
+    };
 
     const pickImages = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ["images"],
             allowsMultipleSelection: true,
             selectionLimit: 5,
             quality:0.8,
@@ -60,7 +70,7 @@ export default function CreateEvent() {
         try {
             setSubmitting(true);
 
-            const createdEvent = await eventService.createEvent({
+            const eventId = await eventService.createEvent({
                 title,
                 description,
                 category,
@@ -69,7 +79,7 @@ export default function CreateEvent() {
                 maxParticipants,
             });
             if (images.length > 0) {
-                await imageService.uploadEventImages(createdEvent.eventId,images);
+                await imageService.uploadEventImages(eventId,images);
             }
             alert("이벤트가 생성되었습니다");
 
@@ -136,28 +146,29 @@ export default function CreateEvent() {
                     );
                 })}
             </View>
-
-           
             <Text style={styles.label}>Start</Text>
-            <TouchableOpacity style={styles.input} onPress={() => setPicker("start")}>
-                <Text>{startDate.toLocaleString()}</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", gap: 10 }}>
+                <TouchableOpacity style={[styles.input, { flex: 1 }]}
+                    onPress={() => showPicker(startDate, "date", setStartDate)}>
+                    <Text>{startDate.toLocaleDateString()}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.input, { flex: 1 }]}
+                    onPress={() => showPicker(startDate, "time", setStartDate)}>
+                    <Text>{startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Text>
+                </TouchableOpacity>
+            </View>
 
             <Text style={styles.label}>End</Text>
-            <TouchableOpacity style={styles.input} onPress={() => setPicker("end")}>
-                <Text>{endDate.toLocaleString()}</Text>
-            </TouchableOpacity>
-
-            {picker && (
-                <DateTimePicker
-                    value={picker === "start" ? startDate : endDate}
-                    mode="datetime"
-                    onChange={(_, date) => {
-                        if (date) picker === "start" ? setStartDate(date) : setEndDate(date);
-                        setPicker(null);
-                    }}
-                />
-            )}
+            <View style={{ flexDirection: "row", gap: 10 }}>
+                <TouchableOpacity style={[styles.input, { flex: 1 }]}
+                    onPress={() => showPicker(endDate, "date", setEndDate)}>
+                    <Text>{endDate.toLocaleDateString()}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.input, { flex: 1 }]}
+                    onPress={() => showPicker(endDate, "time", setEndDate)}>
+                    <Text>{endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Text>
+                </TouchableOpacity>
+            </View>
 
             
             <Text style={styles.label}>Max Participants</Text>

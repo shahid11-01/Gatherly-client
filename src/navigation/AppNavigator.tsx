@@ -1,7 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 // 화면
-import HomeScreen from "@/src/screens/main/HomeScreen";
+import EditEventScreen from "@/src/screens/event/EditEventScreen";
+import EventDetailScreen from "@/src/screens/event/EventDetailScreen";
+import MyEventDetailScreen from "../screens/main/MyEventDetailScreen";
+import BottomTabNavigator from "./BottomTabNavigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,9 +20,23 @@ export default function AppNavigator() {
         >
 
             <Stack.Screen
-                name="Home"
-                component={HomeScreen}
+                name="MainTabs"
+                component={BottomTabNavigator}
             />
+
+            <Stack.Screen
+                name="EventDetail"
+                component={EventDetailScreen}
+            />
+            <Stack.Screen
+                name="EditEvent"
+                component={EditEventScreen}
+            />
+            <Stack.Screen
+                name="MyEventDetailScreen"
+                component={MyEventDetailScreen}
+            />
+
 
         </Stack.Navigator>
 

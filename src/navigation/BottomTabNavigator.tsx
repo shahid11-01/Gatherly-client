@@ -6,8 +6,8 @@ import { TouchableOpacity, View } from "react-native";
 
 import CreateEvent from "@/src/screens/main/CreateEvent";
 import HomeScreen from "@/src/screens/main/HomeScreen";
-// import ProfileScreen from "@/src/screens/main/ProfileScreen";
 import MyEventScreen from "@/src/screens/main/MyEventScreen";
+import ProfileScreen from "@/src/screens/main/ProfileScreen";
 
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -48,6 +48,7 @@ export default function BottomTabNavigator() {
                 headerShown:false,
                 tabBarActiveTintColor:Colors.light.primary,
                 tabBarInactiveTintColor:"#94a3b8",
+                tabBarStyle: {height:70, paddingBottom:12, paddingTop:8},
             }}
         >
             <Tab.Screen

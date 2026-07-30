@@ -13,9 +13,17 @@ export interface EventResponse{
     title: string;
     description: string;
     startDate: string;
+    participantCount?: number;
+    imageUrls:string[];
     endDate: string;
     maxParticipants: number;
     category: EventCategory;
+    hostName:string;
+}
+
+export interface EventImageResponse {
+    id: number;
+    url: string;
 }
 
 
@@ -30,3 +38,12 @@ export type EventCategory =
   | "COOKING"
   | "EDUCATION"
   | "OTHER";
+
+export interface EventAllResponse<T> {
+    events: T[];
+    page: number;
+    size: number;
+    total: number;
+    totalPages: number;
+    last: boolean;
+}

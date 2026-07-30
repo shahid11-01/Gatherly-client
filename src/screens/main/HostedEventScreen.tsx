@@ -4,36 +4,30 @@ import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import * as eventService from "@/src/services/eventService";
-import * as participantService from "@/src/services/participantService";
 import { Colors } from "@/src/theme/colors";
 import { Spacing } from "@/src/theme/spacing";
 import { EventResponse } from "@/src/types/event";
 import { AppStackParamList } from "@/src/types/navigation";
 
-export default function EventDetailScreen() {
-    const route = useRoute<RouteProp<AppStackParamList, "EventDetail">>();
+export default function MyEventDetailScreen() {
+    const route = useRoute<RouteProp<AppStackParamList, "HostedEventScreen">>();
     const navigation = useNavigation();
-    const {eventId} = route.params;
+    const { eventId } = route.params;
     const [event, setEvent] = useState<EventResponse | null>(null);
 
     useEffect(() => {
         (async () => setEvent(await eventService.getEvent(eventId)))();
     }, [eventId]);
 
-    const handleJoin = async () => {
-        try { 
-            await participantService.joinRequest(eventId);
-            alert("참가 요청을 보냈습니다");
-        }catch (e) {console.log(e); alert("요청 실패");}
-    };
-    if(!event) return null;
+    if (!event) return null;
+
     const filled = event.participantCount ?? 0;
     const max = event.maxParticipants;
     const pct = max ? Math.min(100, (filled / max) * 100) : 0;
     const left = Math.max(0, max - filled);
 
     return (
-        <View style={{flex:1, backgroundColor: Colors.light.background}}>
+        <View style={{ flex: 1, backgroundColor: Colors.light.background }}>
             <ScrollView>
                 <View>
                     {event.imageUrls?.[0]
@@ -49,13 +43,12 @@ export default function EventDetailScreen() {
                     <Text style={styles.title}>{event.title}</Text>
 
                     <Text style={styles.hostLabel}>HOSTED BY</Text>
-                    <Text style={styles.hostName}>{event.hostName}</Text>
+                    <Text style={styles.hostName}>{event.hostName} (You)</Text>
 
                     <View style={styles.infoRow}>
                         <View style={styles.infoBox}>
                             <Text style={styles.infoLabel}>START DATE</Text>
                             <Text style={styles.infoValue}>{new Date(event.startDate).toLocaleString()}</Text>
-
                             <Text style={styles.infoLabel}>END DATE</Text>
                             <Text style={styles.infoValue}>{new Date(event.endDate).toLocaleString()}</Text>
                         </View>
@@ -63,7 +56,6 @@ export default function EventDetailScreen() {
 
                     <Text style={styles.description}>{event.description}</Text>
 
-                    {/* Participants */}
                     <View style={styles.participantsBox}>
                         <Text style={styles.infoLabel}>PARTICIPANTS</Text>
                         <Text style={styles.spots}>{filled} / {max} spots filled</Text>
@@ -74,13 +66,10 @@ export default function EventDetailScreen() {
                     </View>
                 </View>
             </ScrollView>
-             <TouchableOpacity style={styles.joinBtn} onPress={handleJoin}>
-                <Text style={styles.joinText}>Request to Join</Text>
-            </TouchableOpacity>
         </View>
     );
-    
 }
+
 const styles = StyleSheet.create({
     hero: { width: "100%", height: 240 },
     back: { position: "absolute", top: 40, left: 16, backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 20, padding: 8 },
@@ -98,6 +87,4 @@ const styles = StyleSheet.create({
     progressTrack: { height: 8, backgroundColor: "#e2e8f0", borderRadius: 4, marginTop: 8, overflow: "hidden" },
     progressFill: { height: "100%", backgroundColor: Colors.light.primary },
     left: { color: Colors.light.primary, fontSize: 12, marginTop: 6, textAlign: "right" },
-    joinBtn: { backgroundColor: Colors.light.primary, margin: Spacing.lg, borderRadius: 14, padding: 16, alignItems: "center" },
-    joinText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

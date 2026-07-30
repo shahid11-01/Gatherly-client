@@ -1,85 +1,136 @@
-import { SafeAreaView, StyleSheet, Text } from "react-native";
-
-import { useAuth } from "@/src/context/AuthContext";
-import { AuthStackParamList } from "@/src/navigation/AuthNavigator";
-import { Colors } from "@/src/theme/colors";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { TouchableOpacity } from 'react-native';
+import { useEffect, useState } from "react";
+import {
+    ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import EventCard from "@/src/components/common/EventCard";
+import { useAuth } from "@/src/context/AuthContext";
+import * as eventService from "@/src/services/eventService";
+import { Colors } from "@/src/theme/colors";
+import { Spacing } from "@/src/theme/spacing";
+import { EventCategory, EventResponse } from "@/src/types/event";
+import { AppStackParamList } from "@/src/types/navigation";
 
-// 홈 화면
+const CATEGORIES: { label: string; value: EventCategory | null }[] = [
+    { label: "All", value: null },
+    { label: "Tech", value: "TECH" },
+    { label: "Outdoors", value: "OUTDOOR" },
+    { label: "Music", value: "MUSIC" },
+    { label: "Food", value: "FOOD_AND_DRINK" },
+    { label: "Art", value: "ARTS" },
+    { label: "Sports", value: "SPORTS" },
+    { label: "Gaming", value: "GAMING" },
+];
+
 export default function HomeScreen() {
-        useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+    const { user } = useAuth();
+    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
-        const {user} = useAuth();
-        const {logout} = useAuth();
-        const handleLogout = async () => {
-            try {
-                await logout();
-            }catch(error) {
-                console.log("Logout Error", error);
-            }
-        };
-    
+    const [featured, setFeatured] = useState<EventResponse[]>([]);
+    const [nearby, setNearby] = useState<EventResponse[]>([]);
+    const [selected, setSelected] = useState<EventCategory | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => { loadFeatured(); }, []);
+    useEffect(() => { loadNearby(selected); }, [selected]);
+
+    const loadFeatured = async () => {
+        try {
+            const res = await eventService.getFeatured(0);
+            // console.log("featured res=", res.events?.length);
+            console.log("FEATURED RAW =", JSON.stringify(res));   
+            setFeatured(res.events);
+        } catch (e) {
+             console.log("featured error", e); }
+    };
+
+    const loadNearby = async (cat: EventCategory | null) => {
+        try {
+            setLoading(true);
+            const res = cat
+                ? await eventService.getEvents(0, cat)
+                : await eventService.getNearby(0);
+            setNearby(res.events);
+        } catch (e) { console.log("nearby error", e); }
+        finally { setLoading(false); }
+    };
+
+    const openEvent = (eventId: number) =>
+        navigation.navigate("EventDetail", { eventId });
 
     return (
+        <SafeAreaView style={styles.container} edges={["top"]}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: Spacing.lg }}>
+                {/* Header */}
+                <Text style={styles.greeting}>Good morning 👋</Text>
+                <Text style={styles.name}>{user?.userName ?? "there"}</Text>
 
-        <SafeAreaView style={styles.container}>
+                {/* Search */}
+                <View style={styles.search}>
+                    <Ionicons name="search" size={18} color="#94a3b8" />
+                    <TextInput placeholder="Search events, places..." style={{ flex: 1 }} />
+                </View>
 
-            <Text style={styles.title}>
+                {/* Categories */}
+                <Text style={styles.section}>Categories</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: Spacing.md }}>
+                    {CATEGORIES.map((c) => {
+                        const active = selected === c.value;
+                        return (
+                            <TouchableOpacity
+                                key={c.label}
+                                style={[styles.chip, active && styles.chipActive]}
+                                onPress={() => setSelected(c.value)}
+                            >
+                                <Text style={active ? styles.chipTextActive : styles.chipText}>{c.label}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
 
-                 Welcome to Gatherly 🎉,{"\n\n"}
-                 {user?.userName} 님,  환영합니다!🌸{"\n"}
-                 오늘도 Gatherly와 함께{"\n"}
-                 소중한 추억을 만들어 보세요. 💕
+                {/* Featured */}
+                <Text style={styles.section}>Featured Events</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: Spacing.md }}>
+                    {featured.map((ev) => (
+                        <EventCard key={ev.eventId} event={ev} variant="featured" onPress={() => openEvent(ev.eventId)} />
+                    ))}
+                </ScrollView>
 
-            </Text>
-             {/* 임시 로그아웃 버튼 */}
-            <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleLogout}
-            >
-                <Text style={styles.logoutText}>
-                    Logout
-                </Text>
-            </TouchableOpacity>
-
+                {/* Nearby / filtered */}
+                <Text style={styles.section}>{selected ? "Events" : "Nearby Events"}</Text>
+                {loading ? (
+                    <ActivityIndicator color={Colors.light.primary} style={{ marginTop: 20 }} />
+                ) : nearby.length === 0 ? (
+                    <Text style={styles.empty}>No events found</Text>
+                ) : (
+                    nearby.map((ev) => (
+                        <EventCard key={ev.eventId} event={ev} onPress={() => openEvent(ev.eventId)} />
+                    ))
+                )}
+            </ScrollView>
         </SafeAreaView>
-
     );
-
 }
 
 const styles = StyleSheet.create({
-    logoutButton: {
-        marginTop: 30,
-        backgroundColor: "#EF4444",
-        padding: 14,
-        borderRadius: 10,
-        alignItems: "center",
+    container: { flex: 1, backgroundColor: Colors.light.background },
+    greeting: { color: "#64748b", fontSize: 14 },
+    name: { fontSize: 24, fontWeight: "800", marginBottom: Spacing.md },
+    search: {
+        flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#f1f5f9",
+        borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: Spacing.lg,
     },
-    logoutText: {
-        color: "#FFFFFF",
-        fontWeight: "700",
-        fontSize: 16,
-
+    section: { fontSize: 18, fontWeight: "700", marginBottom: 10, marginTop: 6 },
+    chip: {
+        paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8,
+        borderWidth: 1, borderColor: "#e2e8f0", backgroundColor: "#fff",
     },
-
-    container: {
-
-        flex: 1,
-
-        justifyContent: "center",
-
-        alignItems: "center",
-
-        backgroundColor: Colors.light.background,
-
-    },
-    title: {
-        fontSize:28,
-        fontWeight:"700",
-    },
-
+    chipActive: { backgroundColor: Colors.light.primary, borderColor: Colors.light.primary },
+    chipText: { color: "#334155" },
+    chipTextActive: { color: "#fff", fontWeight: "600" },
+    empty: { color: "#94a3b8", textAlign: "center", marginTop: 20 },
 });
