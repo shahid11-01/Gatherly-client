@@ -15,6 +15,8 @@ export default function EventDetailScreen() {
     const navigation = useNavigation();
     const {eventId} = route.params;
     const [event, setEvent] = useState<EventResponse | null>(null);
+    const[justRequested, setJustRequested] = useState(false);
+    const status = justRequested? "PENDING" : event?.myStatus;
 
     useEffect(() => {
         (async () => setEvent(await eventService.getEvent(eventId)))();
@@ -23,8 +25,13 @@ export default function EventDetailScreen() {
     const handleJoin = async () => {
         try { 
             await participantService.joinRequest(eventId);
+            setJustRequested(true);
             alert("참가 요청을 보냈습니다");
-        }catch (e) {console.log(e); alert("요청 실패");}
+        }catch (e: any) {
+            const msg = e?.response?.data?.message ?? "참가 요청에 실패했습니다";
+            console.log(e); 
+            alert(msg);
+        }
     };
     if(!event) return null;
     const filled = event.participantCount ?? 0;
@@ -74,10 +81,20 @@ export default function EventDetailScreen() {
                     </View>
                 </View>
             </ScrollView>
-             <TouchableOpacity style={styles.joinBtn} onPress={handleJoin}>
-                <Text style={styles.joinText}>Request to Join</Text>
-            </TouchableOpacity>
-        </View>
+            {status === "APPROVED" ? (
+                <View style={[styles.joinBtn, styles.joinedBtn]}>
+                    <Text style={styles.joinText}>✓ Joined</Text>
+                </View>
+            ) : status === "PENDING" ? (
+                <View style={[styles.joinBtn, styles.pendingBtn]}>
+                    <Text style={styles.pendingText}>Requested</Text>
+                </View>
+            ) : (
+                <TouchableOpacity style={styles.joinBtn} onPress={handleJoin}>
+                    <Text style={styles.joinText}>Request to Join</Text>
+                </TouchableOpacity>
+            )}
+                    </View>
     );
     
 }
@@ -100,4 +117,7 @@ const styles = StyleSheet.create({
     left: { color: Colors.light.primary, fontSize: 12, marginTop: 6, textAlign: "right" },
     joinBtn: { backgroundColor: Colors.light.primary, margin: Spacing.lg, borderRadius: 14, padding: 16, alignItems: "center" },
     joinText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+    joinedBtn: { backgroundColor: "#22c55e" },
+    pendingBtn: { backgroundColor: "#e2e8f0" },
+    pendingText: { color: "#64748b", fontWeight: "700", fontSize: 16 },
 });

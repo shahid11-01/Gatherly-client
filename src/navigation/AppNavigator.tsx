@@ -3,7 +3,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // 화면
 import EditEventScreen from "@/src/screens/event/EditEventScreen";
 import EventDetailScreen from "@/src/screens/event/EventDetailScreen";
-import MyEventDetailScreen from "../screens/main/MyEventDetailScreen";
+import HostedEventScreen from "../screens/main/HostedEventScreen";
+import ManageParticipantsScreen from "../screens/main/ManageParticipantsScreen";
+import MyEventsScreen from "../screens/main/MyEventsScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 
 const Stack = createNativeStackNavigator();
@@ -33,11 +35,17 @@ export default function AppNavigator() {
                 component={EditEventScreen}
             />
             <Stack.Screen
-                name="MyEventDetailScreen"
-                component={MyEventDetailScreen}
+                name="HostedEventScreen"
+                component={HostedEventScreen}
             />
-
-
+            <Stack.Screen
+                name= "MyEventsScreen"
+                component={MyEventsScreen}
+            />
+            <Stack.Screen
+                name= "ManageParticipantsScreen"
+                component={ManageParticipantsScreen}
+            />
         </Stack.Navigator>
 
     );

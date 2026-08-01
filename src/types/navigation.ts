@@ -22,7 +22,7 @@ export type AppStackParamList = {
     MainTabs: undefined;
     EventDetail: {eventId: number};
     HostedEventScreen: { eventId: number }; 
-    ManageParticipants: {eventId: number};
-    MyEventScreen: {eventId: number};
+    ManageParticipantsScreen: {eventId: number};
+    MyEventsScreen: {eventId: number};
     EditEvent: {eventId: number};
 }

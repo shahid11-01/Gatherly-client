@@ -9,7 +9,7 @@ import { Spacing } from "@/src/theme/spacing";
 import { EventResponse } from "@/src/types/event";
 import { AppStackParamList } from "@/src/types/navigation";
 
-export default function MyEventDetailScreen() {
+export default function HostedEventScreen() {
     const route = useRoute<RouteProp<AppStackParamList, "HostedEventScreen">>();
     const navigation = useNavigation();
     const { eventId } = route.params;

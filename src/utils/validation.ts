@@ -20,7 +20,7 @@ export function validatePhone(phone: string): string | null {
     if(!phone.trim()) {
         return "validation.phone.required";
     }
-    const phoneRegex = /^010-\d{3,4}-\d{4}}$/
+    const phoneRegex = /^010-\d{3,4}-\d{4}$/
     if(!phoneRegex.test(phone)) {
         return "validation.phone.required";
     }

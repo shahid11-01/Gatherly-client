@@ -13,12 +13,13 @@ export const createEvent = async (eventData: CreateEventRequest):
 //이벤트 수정하기
 export const updateEvent = async(eventData:CreateEventRequest, eventId: number):
   Promise<void> => {
-     await api.put(`/updateEvent/event/${eventId}`, eventData);
+     await api.put(`event/updateEvent/${eventId}`, eventData);
 };
+
 //이벤트 삭제하기
 export const deleteEvent = async(eventId: number):
   Promise<void> => {
-    const response = await api.delete(`/event/${eventId}`);
+    const response = await api.delete(`/event/delete/${eventId}`);
     return response.data;
 };
 
@@ -50,6 +51,12 @@ export async function getHosted(page=0): Promise<EventAllResponse<EventResponse>
 export async function getJoined(page = 0): Promise<EventAllResponse<EventResponse>> {
     const response = await api.get(`/event/joined/${page}`);
     return response.data;
+}
+
+export async function getPending(page = 0):Promise<EventAllResponse<EventResponse>> {
+  const response = await api.get(`/event/pending/${page}`);
+  return response.data;
+  
 }
 //해당 이벤트를 가져오기
 export async function getEvent(eventId:number): Promise<EventResponse> {

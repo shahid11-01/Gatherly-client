@@ -1,117 +1,187 @@
 import { Ionicons } from "@expo/vector-icons";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import EventCard from "@/src/components/common/EventCard";
 import * as eventService from "@/src/services/eventService";
+import * as participantService from "@/src/services/participantService";
 import { Colors } from "@/src/theme/colors";
 import { Spacing } from "@/src/theme/spacing";
 import { EventResponse } from "@/src/types/event";
 import { AppStackParamList } from "@/src/types/navigation";
+import { Alert } from "react-native";
 
-export default function MyEventScreen() {
-    const route = useRoute<RouteProp<AppStackParamList, "MyEventScreen">>();
-    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
-    const { eventId } = route.params;
-    const [event, setEvent] = useState<EventResponse | null>(null);
 
-    useEffect(() => {
-        (async () => setEvent(await eventService.getEvent(eventId)))();
-    }, [eventId]);
+type Tab = "HOSTED" | "JOINED" | "PENDING";
 
-    if (!event) return null;
+export default function MyEventsScreen() {
+   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+   const[tab, setTab] = useState<Tab>("HOSTED");
+   const[hosted, setHosted] = useState<EventResponse[]>([]);
+   const[joined, setJoined] = useState<EventResponse[]>([]);
+   const[pending, setPending] = useState<EventResponse[]>([]);
 
-    const filled = event.participantCount ?? 0;
-    const max = event.maxParticipants;
-    const pct = max ? Math.min(100, (filled / max) * 100) : 0;
-    const left = Math.max(0, max - filled);
+   const load = useCallback(async () =>  {
+    try { setHosted((await eventService.getHosted(0)).events);} catch(e) {
+        console.log("hosted",e);
+    }
 
-    return (
-        <View style={{ flex: 1, backgroundColor: Colors.light.background }}>
-            <ScrollView>
-                <View>
-                    {event.imageUrls?.[0]
-                        ? <Image source={{ uri: event.imageUrls[0] }} style={styles.hero} />
-                        : <View style={[styles.hero, { backgroundColor: "#e2e8f0" }]} />}
-                    <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
+    try {setJoined((await eventService.getJoined(0)).events);} catch (e) {
+        console.log("joined", e);
+    }
 
-                <View style={{ padding: Spacing.lg }}>
-                    <Text style={styles.category}>{event.category}</Text>
-                    <Text style={styles.title}>{event.title}</Text>
+    try {setPending((await eventService.getPending(0)).events);} catch(e) {
+        console.log("pending", e);
+    }
 
-                    <Text style={styles.hostLabel}>HOSTED BY</Text>
-                    <Text style={styles.hostName}>{event.hostName} (You)</Text>
+   }, []);
 
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoBox}>
-                            <Text style={styles.infoLabel}>START DATE</Text>
-                            <Text style={styles.infoValue}>{new Date(event.startDate).toLocaleString()}</Text>
-                            <Text style={styles.infoLabel}>END DATE</Text>
-                            <Text style={styles.infoValue}>{new Date(event.endDate).toLocaleString()}</Text>
-                        </View>
-                    </View>
+   const leave = (eventId:number, label: string) => {
+    Alert.alert(label, "정말 하세겠습니까?", [
+        {text: "취소", style: "cancel"},
+        {
+            text:label,
+            style:"destructive",
+            onPress: async () => {
+                try { await participantService.leaveEvent(eventId); await load();}
+                catch(e) {console.log(e); alert("실패");}
+            },
+        },
+    ]);
+   };
+   const cancel = (eventId:number, label: string) => {
+    Alert.alert(label, "정말 취소하겠습니다?", [
+        {text: "취소", style: "cancel"},
+        {
+            text: label,
+            style: "destructive",
+            onPress: async () => {
+                try {await participantService.cancelRequest(eventId); await load();}
+                catch(e) {console.log(e); alert("실패");}
+            },
+        },
+    ]);
+   };
 
-                    <Text style={styles.description}>{event.description}</Text>
+   const handleDelete = (eventId:number) => {
+    Alert.alert("Delete Event", "정말 이 이벤트를 삭제하시겠습니까?", [
+        {text: "취소", style:"cancel"},
+        {
+            text: "삭제",
+            style: "destructive",
+            onPress: async() => {
+                try {
+                    await eventService.deleteEvent(eventId);
+                    await load();
+                }catch(e) {
+                    console.log("delete error",e);
+                    alert("삭제 실패");
+                }
+            }
+        }
+    ])
 
-                    <View style={styles.participantsBox}>
-                        <Text style={styles.infoLabel}>PARTICIPANTS</Text>
-                        <Text style={styles.spots}>{filled} / {max} spots filled</Text>
-                        <View style={styles.progressTrack}>
-                            <View style={[styles.progressFill, { width: `${pct}%` }]} />
-                        </View>
-                        <Text style={styles.left}>{left} left</Text>
-                    </View>
-                </View>
-            </ScrollView>
+   }
 
-            {/* Host actions instead of Join */}
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.actionBtn, styles.editBtn]}
-                    onPress={() => navigation.navigate("EditEvent", { eventId })}
-                >
-                    <Ionicons name="create-outline" size={18} color={Colors.light.primary} />
-                    <Text style={styles.editText}>Edit</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.actionBtn, styles.manageBtn]}
-                    onPress={() => navigation.navigate("ManageParticipants", { eventId })}
-                >
-                    <Ionicons name="people-outline" size={18} color="#fff" />
-                    <Text style={styles.manageText}>Participants</Text>
-                </TouchableOpacity>
+
+       useFocusEffect(useCallback(() => { load(); }, [load]));
+       const list = tab === "HOSTED" ? hosted: tab ==="JOINED" ? joined: pending;
+
+       const TABS: {key: Tab; label: string; count?: number}[] = [
+            {key: "HOSTED", label: "Hosted"},
+            {key: "JOINED", label: "Joined"},
+            {key: "PENDING", label: "Pending", count:pending.length},
+       ];
+
+       return (
+        <SafeAreaView style={styles.container} edges={["top"]}>
+            <Text style={styles.header}>My Events</Text>
+              <View style={styles.tabs}>
+                {TABS.map((t) => {
+                    const active = tab === t.key;
+                    return (
+                        <TouchableOpacity key={t.key} style={styles.tab} onPress={() => setTab(t.key)}>
+                            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                                <Text style={[styles.tabText, active && styles.tabActive]}>{t.label}</Text>
+                                {t.count ? (
+                                    <View style={styles.badge}><Text style={styles.badgeText}>{t.count}</Text></View>
+                                ) : null}
+                            </View>
+                            {active && <View style={styles.underline} />}
+                        </TouchableOpacity>
+                    );
+                })}
             </View>
-        </View>
-    );
+            <ScrollView contentContainerStyle={{ padding: Spacing.lg }}>
+                {list.length === 0 ? (
+                    <Text style={styles.empty}>No events</Text>
+                ) : list.map((ev) => (
+                    <View key={ev.eventId} style={{ marginBottom: 8 }}>
+                        <EventCard
+                            event={ev}
+                            onPress={() => navigation.navigate("MyEventsScreen", { eventId: ev.eventId })}
+                        />
+                        {tab === "HOSTED" && (
+                            <View style={styles.actions}>
+                                <TouchableOpacity style={[styles.btn, styles.editBtn]}
+                                    onPress={() => navigation.navigate("EditEvent", { eventId: ev.eventId })}>
+                                    <Ionicons name="create-outline" size={16} color={Colors.light.primary} />
+                                    <Text style={styles.editText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.btn, styles.manageBtn]}
+                                    onPress={() => navigation.navigate("ManageParticipantsScreen", { eventId: ev.eventId })}>
+                                    <Ionicons name="people-outline" size={16} color={Colors.light.primary} />
+                                    <Text style={styles.manageText}>Participants</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.btn, styles.deleteBtn]}
+                                    onPress={() => handleDelete(ev.eventId)}>
+                                        <Ionicons name="trash-outline" size={16} color="#ef4444" />
+                                    </TouchableOpacity>
+                            </View>
+                        )}
+                        {tab === "JOINED" && (
+                            <TouchableOpacity style={styles.leaveBtn} onPress={() => leave(ev.eventId, "Leave Event")}>
+                                <Text style={styles.leaveText}>Leave Event</Text>
+                            </TouchableOpacity>
+                        )}
+                        {tab=== "PENDING" && (
+                            <TouchableOpacity style={styles.leaveBtn} onPress={() => cancel(ev.eventId, "Cancel Request")}>
+                                <Text style={styles.leaveText}>Cancel Request</Text>
+
+                            </TouchableOpacity>
+                        )}
+                        
+                    </View>
+                ))}
+            </ScrollView>
+        </SafeAreaView>
+       );
+
 }
 
 const styles = StyleSheet.create({
-    hero: { width: "100%", height: 240 },
-    back: { position: "absolute", top: 40, left: 16, backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 20, padding: 8 },
-    category: { color: Colors.light.primary, fontWeight: "700" },
-    title: { fontSize: 24, fontWeight: "800", marginVertical: 6 },
-    hostLabel: { color: "#94a3b8", fontSize: 11, marginTop: 12 },
-    hostName: { fontSize: 16, fontWeight: "700" },
-    infoRow: { flexDirection: "row", marginTop: 16, gap: 12 },
-    infoBox: { flex: 1, backgroundColor: "#f8fafc", borderRadius: 12, padding: 12 },
-    infoLabel: { color: "#325687", fontSize: 14 },
-    infoValue: { fontWeight: "700", marginTop: 4 },
-    description: { color: "#334155", marginTop: 16, lineHeight: 20 },
-    participantsBox: { backgroundColor: "#f8fafc", borderRadius: 12, padding: 14, marginTop: 16 },
-    spots: { fontWeight: "700", marginTop: 4 },
-    progressTrack: { height: 8, backgroundColor: "#e2e8f0", borderRadius: 4, marginTop: 8, overflow: "hidden" },
-    progressFill: { height: "100%", backgroundColor: Colors.light.primary },
-    left: { color: Colors.light.primary, fontSize: 12, marginTop: 6, textAlign: "right" },
-
-    actionRow: { flexDirection: "row", gap: 12, margin: Spacing.lg },
-    actionBtn: { flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, borderRadius: 14, padding: 16 },
-    editBtn: { backgroundColor: "#fff", borderWidth: 1, borderColor: Colors.light.primary },
+container: { flex: 1, backgroundColor: Colors.light.background },
+    header: { fontSize: 24, fontWeight: "800", paddingHorizontal: Spacing.lg, paddingTop: Spacing.md },
+    tabs: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#e2e8f0", marginTop: 8 },
+    tab: { flex: 1, alignItems: "center", paddingVertical: 12 },
+    tabText: { color: "#94a3b8", fontWeight: "600" },
+    tabActive: { color: Colors.light.primary },
+    underline: { height: 2, backgroundColor: Colors.light.primary, width: "70%", marginTop: 8 },
+    badge: { backgroundColor: Colors.light.primary, borderRadius: 10, paddingHorizontal: 6, minWidth: 18, alignItems: "center" },
+    badgeText: { color: "#fff", fontSize: 11, fontWeight: "700" },
+    empty: { color: "#94a3b8", textAlign: "center", marginTop: 30 },
+    actions: { flexDirection: "row", gap: 10, marginTop: 8, marginBottom: 8 },
+    btn: { flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, borderRadius: 12, padding: 12 },
+    editBtn: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#e2e8f0" },
     editText: { color: Colors.light.primary, fontWeight: "700" },
-    manageBtn: { backgroundColor: Colors.light.primary },
-    manageText: { color: "#fff", fontWeight: "700" },
+    manageBtn: { backgroundColor: "#e8edff" },
+    manageText: { color: Colors.light.primary, fontWeight: "700" },
+    leaveBtn: { marginTop: 8, marginBottom: 8, borderRadius: 12, padding: 12, alignItems: "center",
+    backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca" },
+    leaveText: { color: "#ef4444", fontWeight: "700" },
+    deleteBtn: {flex:0, paddingHorizontal: 14, backgroundColor: "#fef2f2", borderWidth:1, borderColor:"#fecaca",},
 });

@@ -19,6 +19,7 @@ export interface EventResponse{
     maxParticipants: number;
     category: EventCategory;
     hostName:string;
+    myStatus?: "PENDING" | "APPROVED" | "REJECTED" | null;
 }
 
 export interface EventImageResponse {

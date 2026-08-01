@@ -6,7 +6,7 @@ import { TouchableOpacity, View } from "react-native";
 
 import CreateEvent from "@/src/screens/main/CreateEvent";
 import HomeScreen from "@/src/screens/main/HomeScreen";
-import MyEventScreen from "@/src/screens/main/MyEventScreen";
+import MyEventScreen from "@/src/screens/main/MyEventsScreen";
 import ProfileScreen from "@/src/screens/main/ProfileScreen";
 
 

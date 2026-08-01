@@ -26,3 +26,19 @@ export async function rejectRequest(participantUserId:number, eventId:number):Pr
     await api.patch(`/participant/reject/${participantUserId}/${eventId}`);
 
 }
+
+//호스트가 승인되 참가자를 삭제하려고
+export async function deleteParticipant(participantUserId:number, eventId:number): Promise<void> {
+    await api.patch(`/participant/deleteParticipant/${participantUserId}/${eventId}`);
+}
+
+//참가자 이벤트에서 나가
+export async function leaveEvent(eventId:number): Promise<void> {
+    await api.delete(`/participant/leaveEvent/${eventId}`);
+    
+}
+//참가자 요청을 취소하기
+export async function cancelRequest(eventId:number): Promise<void> {
+    await api.delete(`/participant/cancel/${eventId}`);
+    
+}

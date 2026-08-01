@@ -91,6 +91,12 @@ export default function RegisterScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                     />
+                    <InputField
+                        label="Phone number"
+                        placeholder="010-5199-1729"
+                        value={phone}
+                        onChangeText={setPhone}
+                    />
                     <PasswordInput
                         value={password}
                         onChangeText={setPassword}

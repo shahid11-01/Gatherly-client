@@ -64,7 +64,7 @@ export default function ProfileScreen() {
                     ? <Text style={styles.empty}>No hosted events yet</Text>
                     : hosted.map((ev) => (
                         <EventCard key={ev.eventId} event={ev}
-                            onPress={() => navigation.navigate("MyEventDetailScreen", { eventId: ev.eventId })} />
+                            onPress={() => navigation.navigate("HostedEventScreen", { eventId: ev.eventId })} />
                     ))}
             </ScrollView>
         </SafeAreaView>
