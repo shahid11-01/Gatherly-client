@@ -34,6 +34,9 @@ const ko = {
     agreeTerms: "이용약관 및 개인정보 처리방침에 동의합니다.",
 
     alreadyAccount: "이미 계정이 있으신가요?",
+    registerSuccess: "회원가입이 완료되었습니다. 로그인해주세요.",
+    registerFailed: "회원가입에 실패했습니다.",
+    phone: "전화번호",
 
     validation: {
         email: {

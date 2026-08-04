@@ -16,6 +16,9 @@ const az = {
     password:"Şifrə",
 
     enterPassword:"Şifrənizi daxil edin",
+    registerSuccess: "Qeydiyyat uğurludur! Zəhmət olmasa daxil olun.",
+    registerFailed: "Qeydiyyat uğursuz oldu.",
+    phone: "Telefon nömrəsi",
 
  forgotPassword: "Şifrəni unutmusunuz?",
 

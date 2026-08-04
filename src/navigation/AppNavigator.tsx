@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // 화면
 import EditEventScreen from "@/src/screens/event/EditEventScreen";
 import EventDetailScreen from "@/src/screens/event/EventDetailScreen";
+import EditProfileScreen from "../screens/main/EditProfileScreen";
 import HostedEventScreen from "../screens/main/HostedEventScreen";
 import ManageParticipantsScreen from "../screens/main/ManageParticipantsScreen";
 import MyEventsScreen from "../screens/main/MyEventsScreen";
@@ -45,6 +46,10 @@ export default function AppNavigator() {
             <Stack.Screen
                 name= "ManageParticipantsScreen"
                 component={ManageParticipantsScreen}
+            />
+            <Stack.Screen
+                name="EditProfileScreen"
+                component={EditProfileScreen}
             />
         </Stack.Navigator>
 

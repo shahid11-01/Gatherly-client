@@ -13,7 +13,7 @@ export interface LoginRequest {
 export interface SignupRequest {
     userName: string;
     email: string;
-    phone:string;
+    userPhone:string;
     password: string;
 }
 
@@ -22,6 +22,9 @@ export interface User {
     userId:number;
     userName:string;
     email: string;
+    userPhone:string;
+    profileImageUrl?: string;
+    provider?: "LOCAL" | "GOOGLE" | "KAKAO";
 }
 //google 요청
 export interface GoogleLoginRequest{

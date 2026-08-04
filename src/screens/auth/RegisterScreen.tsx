@@ -4,6 +4,7 @@ import InputField from "@/src/components/form/InputField";
 import PasswordInput from "@/src/components/form/PasswordInput";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { useAuth } from "@/src/context/AuthContext";
+import { useLanguage } from "@/src/context/LangaugeContext";
 import { Colors } from "@/src/theme/colors";
 import { Fonts } from "@/src/theme/font";
 import { Spacing } from "@/src/theme/spacing";
@@ -15,159 +16,84 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-
-
-//회원가입 화면
 export default function RegisterScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
-        //입력 상태
-        const[name, setName] = useState("");
-        const[email, setEmail] = useState("");
-        const[password, setPassword] = useState("");
-        const[phone, setPhone] = useState("");
-        const {register} = useAuth();
+    const { register } = useAuth();
+    const { t } = useLanguage();
 
-        //약관 동의 여부
-        const[checked, setChecked] = useState(false);
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [userPhone, setUserPhone] = useState("");
+    const [checked, setChecked] = useState(false);
 
+    const handleRegister = async () => {
+        const error = validateRegister(name, email, userPhone, password, checked);
+        if (error) { alert(error); return; }
 
-        //회원가입 버튼 클릭
-        const handleRegister = async () => {
+        try {
+            await register(name, email, userPhone, password);
+            alert(t.registerSuccess);            // ✅ success
+            navigation.navigate("Login");        // ✅ go to login
+        } catch (error: any) {
+            // shows "이미 사용중인 이메일" (duplicate) or any backend message
+            const msg = error?.response?.data?.message
+                     ?? error?.response?.data
+                     ?? t.registerFailed;
+            alert(msg);
+        }
+    };
 
-            const error = validateRegister(
-                name,
-                email,
-                phone,
-                password,
-                checked,
-            );
+    const handleLogin = () => navigation.navigate("Login");
 
-            if (error) {
-                alert(error);
-                return;
-            }
+    return (
+        <SafeAreaView style={styles.container}>
+            <LoginHeader title={t.createAccount} subtitle={t.registerSubtitle} />
 
-            try {
-                await register(
-                    name,
-                    email,
-                    phone,
-                    password,
-                );
-
-            } catch (error) {
-
-                console.log("Register Error", error);
-
-            }
-
-        };
-        //로그인 화면 이동
-        const handleLogin = () => {
-            navigation.navigate("Login");
-
-        };
-        
-    
-        return (
-            <SafeAreaView style={styles.container}>
-                {/*상단 헤더 */}
-                <LoginHeader
-                    title="Create Account"
-                    subtitle="Join thounsands of even lover"
+            <View style={styles.content}>
+                <InputField
+                    label={t.fullName}
+                    placeholder={t.enterName}
+                    value={name}
+                    onChangeText={setName}
                 />
-                {/*입력 영역 */}
-                <View style = {styles.content}>
-                    <InputField
-                        label="Full Name"
-                        placeholder="Maya Johnson"
-                        value={name}
-                        onChangeText={setName}
-                    />
-                    <InputField
-                        label="Email Address"
-                        placeholder="hello@example.com"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                    />
-                    <InputField
-                        label="Phone number"
-                        placeholder="010-5199-1729"
-                        value={phone}
-                        onChangeText={setPhone}
-                    />
-                    <PasswordInput
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                    <Checkbox
-                        checked={checked}
-                        onPress={() => setChecked(!checked)}
-                        label="I agree to the Terms of Service and Privacy Policy"
-                    />
-                    <PrimaryButton
-                    title="Create Account"
-                    onPress={handleRegister}
-                    />
-                </View>
-                {/*하단 로그인 이동 */}
-                <View style ={styles.bottomContainer}>
-                    <Text style={styles.bottomText}>
-                        Already have an account?
-                    </Text>
-                    <TouchableOpacity
-                        onPress={handleLogin}
-                    >
-                        <Text style={styles.signInText}>
-                            Sign In
-                        </Text>
-                    </TouchableOpacity>
+                <InputField
+                    label={t.email}
+                    placeholder={t.enterEmail}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                />
+                <InputField
+                    label={t.phone ?? "Phone"}
+                    placeholder="010-1234-5678"
+                    value={userPhone}
+                    onChangeText={setUserPhone}
+                    keyboardType={"phone-pad" as any}
+                />
+                <PasswordInput value={password} onChangeText={setPassword} />
+                <Checkbox
+                    checked={checked}
+                    onPress={() => setChecked(!checked)}
+                    label={t.agreeTerms}
+                />
+                <PrimaryButton title={t.createAccount} onPress={handleRegister} />
+            </View>
 
-                </View>
-
-            </SafeAreaView>
-        );
+            <View style={styles.bottomContainer}>
+                <Text style={styles.bottomText}>{t.alreadyAccount}</Text>
+                <TouchableOpacity onPress={handleLogin}>
+                    <Text style={styles.signInText}>{t.signIn}</Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
+    );
 }
-    const styles = StyleSheet.create({
 
-        //화면 전체
-        container: {
-            flex:1,
-            backgroundColor: Colors.light.background,
-        },
-
-        //입력 영역
-        content: {
-            flex:1,
-            padding: Spacing.lg,
-
-        },
-        //하단 로그인 이동 영역
-        bottomContainer: {
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingBottom: Spacing.xl,
-        },
-        //제목
-        title: {
-            fontSize: 28,
-            fontWeight:"700",
-
-        },
-        //안내 문구
-        bottomText: {
-            fontSize: Fonts.body,
-            color: Colors.light.textSecondary,
-        },
-         // 로그인 이동 버튼
-        signInText: {
-            marginLeft: Spacing.xs,
-            fontSize: Fonts.body,
-            fontWeight: "700",
-            color: Colors.light.primary,
-        },
-
-    });
-
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: Colors.light.background },
+    content: { flex: 1, padding: Spacing.lg },
+    bottomContainer: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingBottom: Spacing.xl },
+    bottomText: { fontSize: Fonts.body, color: Colors.light.textSecondary },
+    signInText: { marginLeft: Spacing.xs, fontSize: Fonts.body, fontWeight: "700", color: Colors.light.primary },
+});

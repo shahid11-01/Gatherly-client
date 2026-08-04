@@ -8,6 +8,7 @@ export type AuthStackParamList = {
     Language: undefined;
     Login: undefined;
     Register: undefined;
+    
 };
 
 export type MainTabParamList = {
@@ -25,4 +26,5 @@ export type AppStackParamList = {
     ManageParticipantsScreen: {eventId: number};
     MyEventsScreen: {eventId: number};
     EditEvent: {eventId: number};
+    EditProfileScreen: undefined;
 }

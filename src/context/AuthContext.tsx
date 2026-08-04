@@ -1,422 +1,122 @@
+import * as authService from "@/src/services/authService";
+import { User } from "@/src/types/auth";
+import { getAccessToken, getRefreshToken, removeTokens, saveTokens } from "@/src/utils/tokenStorage";
 import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+    createContext, ReactNode, useCallback, useContext, useEffect, useState,
 } from "react";
 
-// 인증 API
-import * as authService from "@/src/services/authService";
-
-// Token 저장소
-import {
-    getAccessToken,
-    getRefreshToken,
-    removeTokens,
-    saveTokens,
-} from "@/src/utils/tokenStorage";
-
-// 타입
-import { User } from "@/src/types/auth";
-
-// Context 타입
 interface AuthContextType {
-
-    // 로그인 여부
     isAuthenticated: boolean;
-
-    // 사용자 정보
     user: User | null;
-
-    // 초기 로딩
     loading: boolean;
-
-    // 로그인
-    login: (
-        email: string,
-        password: string,
-    ) => Promise<void>;
-
-    // 회원가입
-    register: (
-        userName: string,
-        email: string,
-        phone:string,
-        password: string,
-    ) => Promise<void>;
-    //구글 로그인
-    googleLogin: (
-        idToken: string,
-    ) => Promise<void>;
-    //카카오 로그인
-    kakaoLogin: (
-        accessToken: string,
-    ) => Promise<void>;
-
-    // 로그아웃
+    initializing: boolean;
+    login: (email: string, password: string) => Promise<void>;
+    register: (userName: string, email: string, userPhone: string, password: string) => Promise<void>;
+    googleLogin: (idToken: string) => Promise<void>;
+    kakaoLogin: (accessToken: string) => Promise<void>;
     logout: () => Promise<void>;
-
-    // 세션 복원
     restoreSession: () => Promise<void>;
+    refreshUser: () => Promise<void>;
 }
 
-// Context 생성
-const AuthContext =
-    createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-// Provider Props
-interface Props {
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [initializing, setInitializing] = useState(true);
 
-    children: ReactNode;
-
-}
-
-// Provider
-export function AuthProvider({
-
-    children,
-
-}: Props) {
-
-    // 사용자
-    const [user, setUser] =
-        useState<User | null>(null);
-
-    // 로그인 여부
-    const [
-        isAuthenticated,
-        setIsAuthenticated,
-    ] = useState(false);
-
-    // 초기 로딩
-    const [
-        loading,
-        setLoading,
-    ] = useState(true);
-
-
-
-    // 저장된 로그인 복원
     const restoreSession = async () => {
-
         try {
-
-            setLoading(true);
-
-            const accessToken =
-                await getAccessToken();
-
-            const refreshToken =
-                await getRefreshToken();
-
-            if (!accessToken || !refreshToken) {
-
-                setIsAuthenticated(false);
-
-                return;
-
-            }
-
-            const currentUser =
-                await authService.getCurrentUser();
-
+            setInitializing(true);
+            const accessToken = await getAccessToken();
+            const refreshToken = await getRefreshToken();
+            if (!accessToken || !refreshToken) { setIsAuthenticated(false); return; }
+            const currentUser = await authService.getCurrentUser();
             setUser(currentUser);
-
             setIsAuthenticated(true);
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Restore Session Error",
-                error,
-            );
-
+        } catch (error) {
+            console.log("Restore Session Error", error);
             await removeTokens();
-
             setUser(null);
-
             setIsAuthenticated(false);
-
+        } finally {
+            setInitializing(false);
         }
-
-        finally {
-
-            setLoading(false);
-
-        }
-
     };
 
-    // 앱 시작 시 실행
-    useEffect(() => {
+    useEffect(() => { restoreSession(); }, []);
 
-        restoreSession();
+    const login = async (email: string, password: string) => {
+        try {
+            setLoading(true);
+            const response = await authService.login({ email, password });
+            await saveTokens(response.accessToken, response.refreshToken);
+            setUser(await authService.getCurrentUser());
+            setIsAuthenticated(true);
+        } catch (error) { console.log("Login Error", error); throw error; }
+        finally { setLoading(false); }
+    };
 
+    const register = async (userName: string, email: string, userPhone: string, password: string) => {
+        try {
+            setLoading(true);
+            const response = await authService.register({ userName, email, userPhone, password });
+        } catch (error) { console.log("Register Error", error); throw error; }
+        finally { setLoading(false); }
+    };
+
+    const googleLogin = async (idToken: string) => {
+        try {
+            setLoading(true);
+            const response = await authService.googleLogin({ idToken });
+            await saveTokens(response.accessToken, response.refreshToken);
+            setUser(await authService.getCurrentUser());
+            setIsAuthenticated(true);
+        } catch (error) { console.log("Google Login Error", error); throw error; }
+        finally { setLoading(false); }
+    };
+
+    const kakaoLogin = async (accessToken: string) => {
+        try {
+            setLoading(true);
+            const response = await authService.kakaoLogin({ accessToken });
+            await saveTokens(response.accessToken, response.refreshToken);
+            setUser(await authService.getCurrentUser());
+            setIsAuthenticated(true);
+        } catch (error) { console.log("카카오 로그인 오류", error); throw error; }
+        finally { setLoading(false); }
+    };
+
+    const logout = async () => {
+        try { setLoading(true); await authService.logout(); }
+        catch (error) { console.log("Logout Error", error); }
+        finally {
+            await removeTokens();
+            setUser(null);
+            setIsAuthenticated(false);
+            setLoading(false);
+        }
+    };
+
+    const refreshUser = useCallback(async () => {
+        try { setUser(await authService.getCurrentUser()); }
+        catch (error) { console.log("Refresh User Error", error); }
     }, []);
 
-    // 로그인
-    const login = async (
-
-        email: string,
-
-        password: string,
-
-    ) => {
-
-        try {
-
-            setLoading(true);
-
-            const response =
-                await authService.login({
-
-                    email,
-
-                    password,
-
-                });
-
-            await saveTokens(
-
-                response.accessToken,
-
-                response.refreshToken,
-
-            );
-
-            const currentUser =
-                await authService.getCurrentUser();
-
-            setUser(currentUser);
-
-            setIsAuthenticated(true);
-
-        }
-
-        catch (error: any) {
-
-            console.log(
-                "Login Error",
-                error,
-            );
-            console.log("Err msg", error?.message);
-            console.log("ErrCode", error?.code);
-            console.log("err status", error?.response?.status);
-            console.log("err url:", error?.config?.url);
-
-            throw error;
-
-        }
-
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-    // 회원가입
-    const register = async (
-
-        userName: string,
-
-        email: string,
-        phone: string,
-
-        password: string,
-
-    ) => {
-
-        try {
-
-            setLoading(true);
-
-            const response =
-                await authService.register({
-
-                    userName,
-                    phone,
-
-                    email,
-
-                    password,
-
-                });
-
-            await saveTokens(
-
-                response.accessToken,
-
-                response.refreshToken,
-
-            );
-
-            const currentUser =
-                await authService.getCurrentUser();
-
-            setUser(currentUser);
-
-            setIsAuthenticated(true);
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Register Error",
-                error,
-            );
-
-            throw error;
-
-        }
-
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-
-    const googleLogin = async(
-        idToken:string,
-    ) => {
-        try{
-            setLoading(true);
-
-            //백앤드에 idToken 보내요
-            const response =await authService.googleLogin({idToken});
-
-            //토큰 저장
-            await saveTokens (
-                response.accessToken,
-                response.refreshToken
-            )
-            //유저 정보를 받기
-            const currentUser = await authService.getCurrentUser();
-
-            setUser(currentUser);
-            setIsAuthenticated(true);
-        }catch(error: any) {
-            console.log(
-                "Google Login Error", error,
-            );
-
-            throw error;
-        }finally {
-            setLoading(false);
-        }
-    };
-    
-    //카카오 로그인
-    const kakaoLogin = async (
-        accessToken: string
-    ) => {
-        try {
-            setLoading(true);
-            const response = await authService.kakaoLogin({accessToken});
-            await saveTokens(
-                response.accessToken,
-                response.refreshToken
-            );
-            const currentUser = await authService.getCurrentUser();
-            setUser(currentUser);
-            setIsAuthenticated(true);
-        }catch(error) {
-            console.log("카카오 로그인 오류", error);
-        }finally {
-            setLoading(false);
-        }
-    }
-
-    // 로그아웃
-    const logout = async () => {
-
-        try {
-
-            setLoading(true);
-
-            await authService.logout();
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Logout Error",
-                error,
-            );
-
-        }
-
-        finally {
-
-            await removeTokens();
-
-            setUser(null);
-
-            setIsAuthenticated(false);
-
-            setLoading(false);
-
-        }
-
-    };
-
     return (
-
-        <AuthContext.Provider
-
-            value={{
-
-                user,
-
-                loading,
-
-                isAuthenticated,
-
-                login,
-                googleLogin,
-                kakaoLogin,
-
-                register,
-
-                logout,
-
-                restoreSession,
-
-            }}
-
-        >
-
+        <AuthContext.Provider value={{
+            user, loading, initializing, isAuthenticated,
+            login, googleLogin, kakaoLogin, register, logout, restoreSession, refreshUser,
+        }}>
             {children}
-
         </AuthContext.Provider>
-
     );
-
 }
 
-// Context Hook
 export function useAuth() {
-
-    const context =
-        useContext(AuthContext);
-
-    if (!context) {
-
-        throw new Error(
-            "useAuth must be used inside AuthProvider."
-        );
-
-    }
-
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be used inside AuthProvider.");
     return context;
-
 }

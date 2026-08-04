@@ -65,4 +65,11 @@ export async function getEvent(eventId:number): Promise<EventResponse> {
   
 }
 
+export async function searchEvents(title: string, page= 0): Promise<EventAllResponse<EventResponse>> {
+  const response = await api.get(`/event/search/${page}`,  {
+    params: {title}
+  });
+  return response.data;
+}
+
 

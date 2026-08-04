@@ -21,7 +21,7 @@ export async function register(
     data: SignupRequest
     
 ): Promise<AuthResponse> {
-    console.log("Login Request:", data);
+    console.log("Register request", data);
     const response = await api.post<AuthResponse>(
         "/auth/signup",
         data,
@@ -45,7 +45,7 @@ export async function googleLogin(
 //로그아웃
 export async function logout(): Promise<void> {
     const refreshToken = await getRefreshToken();
-    await api.post("/auth/logout");
+    await api.post("/auth/logout", { refreshToken });
 }
 
 //현재 로그인한 사용자 조회

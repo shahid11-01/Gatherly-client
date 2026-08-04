@@ -87,10 +87,9 @@ export default function CreateEvent() {
                 }
             }
             alert("이벤트가 생성되었습니다");
-            navigation.back();
         }catch(e: any) {
             console.log("이벤트 생성될 때 오류", e);
-            alert(e?.response?.data?.message || "이벤트 생성 실패");
+            alert(e?.response?.data?.message ?? "이벤트 생성 실패");
         }finally {
             setSubmitting(false);
         }

@@ -38,6 +38,9 @@ const en = {
     agreeTerms: "I agree to the Terms of Service and Privacy Policy",
 
     alreadyAccount: "Already have an account?",
+    registerSuccess: "Registration successful! Please sign in.",
+    registerFailed: "Registration failed.",
+    phone: "Phone number",
      
     validation: {
         email:{

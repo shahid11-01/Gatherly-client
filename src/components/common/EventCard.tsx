@@ -31,6 +31,7 @@ export default function EventCard({ event, variant = "list", onPress }: Props) {
             <TouchableOpacity style={styles.featuredCard} activeOpacity={0.9} onPress={onPress}>
                 {image
                     ? <Image source={{ uri: image }} style={styles.featuredImage} />
+                    
                     : <View style={[styles.featuredImage, styles.placeholder]} />}
                 <View style={styles.overlay}>
                     <View style={styles.badge}>
